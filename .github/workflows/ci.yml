@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x64-release
+            runner: ubuntu-24.04
+            cxx: g++
+            sanitize: ""
+          - name: linux-arm64-release
+            runner: ubuntu-24.04-arm
+            cxx: g++
+            sanitize: ""
+          - name: macos-arm64-release
+            runner: macos-latest
+            cxx: clang++
+            sanitize: ""
+          - name: linux-x64-address-sanitizer
+            runner: ubuntu-24.04
+            cxx: g++
+            sanitize: address
+          - name: linux-x64-undefined-sanitizer
+            runner: ubuntu-24.04
+            cxx: g++
+            sanitize: undefined
+          - name: linux-x64-thread-sanitizer
+            runner: ubuntu-24.04
+            cxx: g++
+            sanitize: thread
+    runs-on: ${{ matrix.runner }}
+    name: ${{ matrix.name }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+          -DSANITIZE=${{ matrix.sanitize }}
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
