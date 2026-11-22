@@ -49,3 +49,19 @@ jobs:
         run: cmake --build build --parallel
       - name: Test
         run: ctest --test-dir build --output-on-failure
+
+  lint:
+    runs-on: ubuntu-24.04
+    name: clang-lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install linters
+        run: sudo apt-get update && sudo apt-get install -y clang-format clang-tidy
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+      - name: Build compile database dependencies
+        run: cmake --build build --parallel
+      - name: Format check
+        run: clang-format --dry-run --Werror tests/test_spsc_ring.cpp tests/test_signal.cpp tests/test_crc_counter.cpp
+      - name: clang-tidy
+        run: clang-tidy -p build tests/test_spsc_ring.cpp tests/test_signal.cpp tests/test_crc_counter.cpp

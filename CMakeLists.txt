@@ -45,15 +45,58 @@ endif()
 
 find_package(Threads REQUIRED)
 
-add_executable(producer src/producer.cpp)
-add_executable(monitor src/monitor.cpp)
-target_link_libraries(producer PRIVATE rtchan Threads::Threads)
-target_link_libraries(monitor PRIVATE rtchan Threads::Threads)
-if(UNIX AND NOT APPLE)
-  target_link_libraries(producer PRIVATE rt)
-  target_link_libraries(monitor PRIVATE rt)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/producer.cpp")
+  add_executable(producer src/producer.cpp)
+  target_link_libraries(producer PRIVATE rtchan Threads::Threads)
+  if(UNIX AND NOT APPLE)
+    target_link_libraries(producer PRIVATE rt)
+  endif()
+endif()
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/monitor.cpp")
+  add_executable(monitor src/monitor.cpp)
+  target_link_libraries(monitor PRIVATE rtchan Threads::Threads)
+  if(UNIX AND NOT APPLE)
+    target_link_libraries(monitor PRIVATE rt)
+  endif()
 endif()
 
 add_executable(test_spsc_ring tests/test_spsc_ring.cpp)
 target_link_libraries(test_spsc_ring PRIVATE rtchan Threads::Threads)
 add_test(NAME spsc_ring COMMAND test_spsc_ring)
+
+add_executable(test_signal tests/test_signal.cpp)
+target_link_libraries(test_signal PRIVATE rtchan gtest_main)
+gtest_discover_tests(test_signal)
+
+add_executable(test_crc_counter tests/test_crc_counter.cpp)
+target_link_libraries(test_crc_counter PRIVATE rtchan gtest_main)
+gtest_discover_tests(test_crc_counter)
+
+find_program(CLANG_FORMAT_EXECUTABLE NAMES clang-format)
+find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy)
+
+set(PROJECT_CPP_FILES
+  tests/test_spsc_ring.cpp
+  tests/test_signal.cpp
+  tests/test_crc_counter.cpp
+)
+
+if(CLANG_FORMAT_EXECUTABLE)
+  add_custom_target(format
+    COMMAND ${CLANG_FORMAT_EXECUTABLE} -i ${PROJECT_CPP_FILES}
+    COMMENT "Formatting C++ source and test files"
+  )
+  add_custom_target(format-check
+    COMMAND ${CLANG_FORMAT_EXECUTABLE} --dry-run --Werror ${PROJECT_CPP_FILES}
+    COMMENT "Checking C++ formatting"
+  )
+endif()
+
+if(CLANG_TIDY_EXECUTABLE)
+  add_custom_target(lint
+    COMMAND ${CLANG_TIDY_EXECUTABLE} -p ${CMAKE_BINARY_DIR}
+            tests/test_spsc_ring.cpp tests/test_signal.cpp tests/test_crc_counter.cpp
+    COMMENT "Running clang-tidy"
+  )
+endif()

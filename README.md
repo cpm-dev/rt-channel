@@ -58,3 +58,16 @@ cmake -B build-tsan -DSANITIZE=thread && cmake --build build-tsan -j && ctest --
 sudo scripts/run_experiment.sh 60 3
 python3 scripts/plot_latency.py
 ```
+
+## Pre-commit checks
+
+Requires `clang-format` and `clang-tidy`:
+
+```bash
+scripts/pre_commit.sh format   # apply clang-format
+scripts/pre_commit.sh check    # verify formatting without modifying files
+scripts/pre_commit.sh lint     # build test targets and run clang-tidy
+scripts/pre_commit.sh all      # formatting, build, clang-tidy, and tests
+```
+
+CI runs the same format and static-analysis checks on pull requests.
