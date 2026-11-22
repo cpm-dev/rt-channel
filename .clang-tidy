@@ -1,0 +1,10 @@
+Checks: >-
+  clang-analyzer-core.*,
+  clang-analyzer-cplusplus.*,
+  bugprone-*,
+  performance-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-exception-escape
+WarningsAsErrors: ''
+HeaderFilterRegex: 'include/rbs/|include/rtchan/'
+FormatStyle: file
