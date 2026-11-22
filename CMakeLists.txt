@@ -73,6 +73,12 @@ add_executable(test_crc_counter tests/test_crc_counter.cpp)
 target_link_libraries(test_crc_counter PRIVATE rtchan gtest_main)
 gtest_discover_tests(test_crc_counter)
 
+add_executable(bench_jitter
+  scripts/bench_jitter.cpp
+  scripts/bench_target.cpp
+)
+target_link_libraries(bench_jitter PRIVATE rtchan)
+
 find_program(CLANG_FORMAT_EXECUTABLE NAMES clang-format)
 find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy)
 
