@@ -9,13 +9,16 @@ producer. Measured under a noisy neighbor with no isolation, cgroup v2 limits, a
 
 ![wakeup jitter by configuration](results/jitter.png)
 
-| Configuration | p99 jitter | p99.9 jitter | Max jitter | Lost cycles |
-| --- | --- | --- | --- | --- |
-| No isolation | | | | |
-| cgroup v2 limits | | | | |
-| Dedicated core | | | | |
+| Configuration | p50 jitter | p99 jitter | p99.9 jitter | Max jitter | Lost cycles |
+| --- | --- | --- | --- | --- | --- |
+| Ring hot-path benchmark (local Mac) | 0.041 µs | 0.042 µs | 0.124 µs | 37.917 µs | 0 |
+| No isolation | — | — | — | — | — |
+| cgroup v2 limits | — | — | — | — | — |
+| Dedicated core | — | — | — | — | — |
 
-
+The local Mac value is a ring push/pop microbenchmark of 100,000 measured iterations. It measures
+execution-duration variance, not 10 ms task wakeup jitter or shared-memory process latency. The remaining
+isolation configurations have not been collected yet.
 
 Hardware, kernel and settings: see `results/environment.txt`.
 
